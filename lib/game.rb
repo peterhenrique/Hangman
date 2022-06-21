@@ -41,6 +41,7 @@ class Game
     @underscored_word = ''
     @player_word = []
     puts 'Hangman started!'
+    load
     puts 'What is your name?'
     @name = gets.chomp
     @alive = true
@@ -55,6 +56,15 @@ class Game
     puts_health
     update_underscored
     turn
+  end
+
+  def load
+    puts "Do you want to load a saved file? (Y/N)"
+    if gets.chomp.downcase == 'y'
+      File.open("/saved_games/savefile.yaml", "r").each do |object|
+        Yaml::load(object)
+      end
+    end
   end
 
   def turn
@@ -142,8 +152,18 @@ class Game
     end
   end
 
-  def serialize   
-    yaml = YAML.dump(self)
+  def serialize
+    puts "Do you want to save? (Y/N)"
+    answer = gets.chomp
+    if answer.downcase == 'y'
+      Dir.mkdir('saved_games') unless Dir.exist?('saved_games')
+      save_game = "saved_games/savefile.yaml"
+      File.open(save_game,'w') do |file|
+        file.puts YAML.dump(self)
+      end
+      puts "Thank you for playing, your game is saved."
+      self.alive = false
+    end       
   end
 end
 
