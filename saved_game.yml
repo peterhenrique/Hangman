@@ -1,0 +1,10 @@
+---
+- !ruby/object:Game
+  chosen_word: magnificent
+  underscored_word: ___________
+  player_word:
+  - s
+  name: s
+  alive: true
+  input: s
+  health: 4

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'csv'
 require 'pry-byebug'
 require 'yaml'
@@ -30,27 +32,25 @@ class Dictionary
     end
     @word = word
   end
-
 end
 
 class Game
-  attr_accessor :name, :alive, :winner, :game_over, :health
+  attr_accessor :name, :alive, :winner, :game_over, :health, :input, :underscored_word, :player_word, :chosen_word
 
   def initialize(input = '', health = 5)
     @chosen_word = ''
     @underscored_word = ''
     @player_word = []
-    puts 'Hangman started!'
-    load
-    puts 'What is your name?'
-    @name = gets.chomp
     @alive = true
     @input = input
     @health = health
-    start
+    puts 'Hangman started!'
+    load_question
   end
 
   def start
+    puts 'What is your name?'
+    @name = gets.chomp
     new = Player.new(@name.to_s)
     update_word
     puts_health
@@ -58,19 +58,11 @@ class Game
     turn
   end
 
-  def load
-    puts "Do you want to load a saved file? (Y/N)"
-    if gets.chomp.downcase == 'y'
-      File.open("/saved_games/savefile.yaml", "r").each do |object|
-        Yaml::load(object)
-      end
-    end
-  end
-
   def turn
     while @alive == true
       check_health_player(@health)
       break if alive == false
+
       player_input
       a = last_input
       health_damage if checker(a) != true
@@ -96,7 +88,6 @@ class Game
       input = gets.chomp
     end
     change_input(input)
-    
   end
 
   def change_input(arg)
@@ -153,17 +144,41 @@ class Game
   end
 
   def serialize
-    puts "Do you want to save? (Y/N)"
+    puts 'Do you want to save? (Y/N)'
     answer = gets.chomp
     if answer.downcase == 'y'
       Dir.mkdir('saved_games') unless Dir.exist?('saved_games')
-      save_game = "saved_games/savefile.yaml"
-      File.open(save_game,'w') do |file|
+      save_game = 'saved_games/savefile.yaml'
+      File.open(save_game, 'w') do |file|
         file.puts YAML.dump(self)
       end
-      puts "Thank you for playing, your game is saved."
+      puts 'Thank you for playing, your game is saved.'
       self.alive = false
-    end       
+    end
+  end
+
+  def load_question
+    puts 'Do you want to load a saved file? (Y/N)'
+    if gets.chomp.downcase != 'y'
+      start
+    else
+      loading
+      puts "welcome back #{@name}"
+      puts_health
+      update_underscored
+      turn
+    end
+  end
+
+  def loading
+    yaml = YAML.load_file('saved_games/savefile.yaml')
+    @chosen_word = yaml.chosen_word
+    @underscored_word = yaml.underscored_word
+    @health = yaml.health
+    @name = yaml.name
+    @player_word = yaml.player_word
+    @input = yaml.input
+    File.delete('saved_games/savefile.yaml')
   end
 end
 

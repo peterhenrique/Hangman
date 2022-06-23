@@ -1,0 +1,9 @@
+--- !ruby/object:Game
+chosen_word: emissions
+underscored_word: emissio_s
+player_word:
+- a
+alive: true
+input: asemio
+health: 4
+name: pedro
